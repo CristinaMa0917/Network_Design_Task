@@ -1,0 +1,1 @@
+{"optimizer": "Adam", "description": "", "params": {"lr": 0.001, "betas": [0.9, 0.999], "eps": 1e-08, "weight_decay": 0, "amsgrad": false}, "epochs": [[{"loss": 0.6934545643925667, "binary_acc": 0.504875}, {"loss": 0.6930932015180588, "binary_acc": 0.5090625}]], "metrics": ["binary_acc"], "multi_tasks": []}
