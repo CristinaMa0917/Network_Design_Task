@@ -32,16 +32,16 @@ class net_Task3(torch.nn.Module): # accuracy achieves 0.99 within 100 steps
     def forward(self,x):
         x = self.emb(x) # 32,20,8
         x,_ = self.lstm(x) # 32,20,16
-        x,_ = self.gru(x) #32,20,10
+        x,_ = self.gru(x) #32,20,20
 
         x = x.contiguous()
-        x = x.view(x.shape[0],-1) # 32,200
+        x = x.view(x.shape[0],-1) # 32,400
 
-        x = self.dense1(x) #32,100
-        x = self.dense2(x) # 32,20
+        x = self.dense1(x) #32,300
+        x = self.dense2(x) # 32,200
 
         x = x.contiguous()
-        x = x.view(x.shape[0],20,10)
+        x = x.view(x.shape[0],20,10) # 32, 20, 10
         return x
 
 def accuracy(predict,output,batch):
@@ -56,12 +56,13 @@ def accuracy(predict,output,batch):
     pre_num = predict.data.numpy()
     out_num = output.data.numpy()
     count = 0.0
-    for i in range(batch):
-        p = pre_num[i,:].tolist()
-        o = out_num[i,:].tolist()
-        if p==o:
-            count+=1.0
-    acc = count/batch
+    #for i in range(batch):
+    #    p = pre_num[i,:].tolist()
+    #    o = out_num[i,:].tolist()
+    #    if p==o:
+    #        count+=1.0
+    #acc = count/batch
+    acc = np.mean(pre_num==out_num)
     return acc
 
 if __name__=='__main__':
