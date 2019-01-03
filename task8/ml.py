@@ -2,6 +2,7 @@ import torch
 from torch import nn
 from torch import optim
 from torch.utils import data
+import torch.nn.functional as F
 import numpy as np
 import pandas as pd
 import os
@@ -32,13 +33,17 @@ class net_Task3(torch.nn.Module): # accuracy achieves 0.99 within 100 steps
     def forward(self,x):
         x = self.emb(x) # 32,20,8
         x,_ = self.lstm(x) # 32,20,16
+        x = F.relu(x)
         x,_ = self.gru(x) #32,20,20
+        x = F.relu(x)
 
         x = x.contiguous()
         x = x.view(x.shape[0],-1) # 32,400
 
         x = self.dense1(x) #32,300
+        x = F.relu(x)
         x = self.dense2(x) # 32,200
+        x = F.ralu(x)
 
         x = x.contiguous()
         x = x.view(x.shape[0],20,10) # 32, 20, 10
