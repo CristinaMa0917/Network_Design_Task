@@ -20,9 +20,9 @@ class Dataset(data.Dataset):
     def __len__(self):
         return self.input.shape[0]
 
-class net_Task3(torch.nn.Module): # accuracy achieves 0.99 within 100 steps
+class net_Task8(torch.nn.Module): # accuracy achieves 0.99 within 100 steps
     def __init__(self,in_num,out_num):
-        super(net_Task3,self).__init__()
+        super(net_Task8,self).__init__()
 
         self.emb = nn.Embedding(10,8) #0-9
         self.lstm = nn.LSTM(8,16,batch_first=True,dropout=1)
@@ -79,7 +79,7 @@ if __name__=='__main__':
               'out_num':10}
     dataset = Dataset(params,input_file,output_file)
     dataloader = data.DataLoader(dataset,batch_size = params['batch_size'],shuffle=True)
-    net = net_Task3(params['in_num'],params['out_num'])
+    net = net_Task8(params['in_num'],params['out_num'])
     optimizer = optim.Adam(net.parameters(),lr=params['lr'])
     loss_fn = nn.CrossEntropyLoss()
 
