@@ -67,4 +67,5 @@
    - 解决方案： 三层GRU（前两层双向）+ 一层Dense 
    - Train上的准确率 （final 100 ： 0.907 ）
    - Test 上的准确率 0.87
-
+   
+   ![img](https://github.com/CristinaMa0917/Network_Design_Task/blob/master/3911546680929_.pic_hd.jpg)
