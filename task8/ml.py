@@ -25,7 +25,7 @@ class net_Task8(torch.nn.Module): # accuracy achieves 0.99 within 100 steps
         super(net_Task8,self).__init__()
 
         self.emb = nn.Embedding(10,8) #0-9
-        self.lstm = nn.LSTM(8,16,batch_first=True,dropout=1)
+        self.lstm = nn.LSTM(8,16,batch_first=True,dropout=0)
         self.gru = nn.GRU(16,20,batch_first=True)
         self.dense1 = nn.Linear(400,300)
         self.dense2 = nn.Linear(300,200)
