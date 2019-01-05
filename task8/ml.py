@@ -49,22 +49,11 @@ class net_Task8(torch.nn.Module): # accuracy achieves 0.99 within 100 steps
 
 def accuracy(predict,output,batch):
     predict = torch.nn.functional.softmax(predict,dim=-1)
-    predict = torch.max(predict,2)[1].long()
-    predict.contiguous()
-    predict = predict.view(batch,20)
-
-    output.contiguous()
-    output = output.view(batch,20)
+    predict = torch.max(predict,2)[1]
 
     pre_num = predict.data.numpy()
     out_num = output.data.numpy()
     count = 0.0
-    #for i in range(batch):
-    #    p = pre_num[i,:].tolist()
-    #    o = out_num[i,:].tolist()
-    #    if p==o:
-    #        count+=1.0
-    #acc = count/batch
     acc = np.mean(pre_num==out_num)
     return acc
 
