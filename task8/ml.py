@@ -2,7 +2,6 @@ import torch
 from torch import nn
 from torch import optim
 from torch.utils import data
-import torch.nn.functional as F
 import numpy as np
 import pandas as pd
 import os
@@ -20,31 +19,31 @@ class Dataset(data.Dataset):
     def __len__(self):
         return self.input.shape[0]
 
-class net_Task8(torch.nn.Module): # accuracy achieves 0.99 within 100 steps
+class net_Task3(torch.nn.Module): # accuracy achieves 0.99 within 100 steps
     def __init__(self,in_num,out_num):
-        super(net_Task8,self).__init__()
+        super(net_Task3,self).__init__()
 
         self.emb = nn.Embedding(10,8) #0-9
-        self.lstm = nn.LSTM(8,16,batch_first=True,dropout=0)
-        self.gru = nn.GRU(16,20,batch_first=True)
-        self.dense1 = nn.Linear(400,300)
-        self.dense2 = nn.Linear(300,200)
+        self.gru1 = nn.GRU(8,16,batch_first=True,dropout=0,bidirectional=True)
+        self.gru2= nn.GRU(32,20,batch_first=True,dropout=0,bidirectional=True)
+        self.gru3 = nn.GRU(40, 20, batch_first=True, dropout=0)
+        self.dense1 = nn.Linear(400,200)
+        #self.dense2 = nn.Linear(300,200)
 
     def forward(self,x):
         x = self.emb(x) # 32,20,8
-        x,_ = self.lstm(x) # 32,20,16
-        x = F.relu(x)
-        x,_ = self.gru(x) #32,20,20
-        x = F.relu(x)
+        x,_ = self.gru1(x) # 32,20,32
+        x,_ = self.gru2(x) #32,20,40
+        x,_ = self.gru3(x) #32,20,20
+
         x = x.contiguous()
         x = x.view(x.shape[0],-1) # 32,400
 
         x = self.dense1(x) #32,300
-        x = F.relu(x)
-        x = self.dense2(x) # 32,200
+        # x = self.dense2(x) # 32,200
 
         x = x.contiguous()
-        x = x.view(x.shape[0],20,10) # 32, 20, 10
+        x = x.view(x.shape[0],20,10)
         return x
 
 def accuracy(predict,output,batch):
@@ -53,7 +52,6 @@ def accuracy(predict,output,batch):
 
     pre_num = predict.data.numpy()
     out_num = output.data.numpy()
-    count = 0.0
     acc = np.mean(pre_num==out_num)
     return acc
 
@@ -68,7 +66,7 @@ if __name__=='__main__':
               'out_num':10}
     dataset = Dataset(params,input_file,output_file)
     dataloader = data.DataLoader(dataset,batch_size = params['batch_size'],shuffle=True)
-    net = net_Task8(params['in_num'],params['out_num'])
+    net = net_Task3(params['in_num'],params['out_num'])
     optimizer = optim.Adam(net.parameters(),lr=params['lr'])
     loss_fn = nn.CrossEntropyLoss()
 
@@ -80,6 +78,7 @@ if __name__=='__main__':
             output = batch_data[1]
 
             predict = net(input)
+
 
             loss = 0
 
