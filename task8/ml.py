@@ -2,6 +2,7 @@ import torch
 from torch import nn
 from torch import optim
 from torch.utils import data
+import torch.nn.functional as F
 import numpy as np
 import pandas as pd
 import os
@@ -19,9 +20,9 @@ class Dataset(data.Dataset):
     def __len__(self):
         return self.input.shape[0]
 
-class net_Task3(torch.nn.Module): # accuracy achieves 0.99 within 100 steps
+class net_Task8(torch.nn.Module): # accuracy achieves 0.99 within 100 steps
     def __init__(self,in_num,out_num):
-        super(net_Task3,self).__init__()
+        super(net_Task8,self).__init__()
 
         self.emb = nn.Embedding(10,8) #0-9
         self.lstm = nn.LSTM(8,16,batch_first=True,dropout=1)
@@ -32,12 +33,14 @@ class net_Task3(torch.nn.Module): # accuracy achieves 0.99 within 100 steps
     def forward(self,x):
         x = self.emb(x) # 32,20,8
         x,_ = self.lstm(x) # 32,20,16
+        x = F.relu(x)
         x,_ = self.gru(x) #32,20,20
-
+        x = F.relu(x)
         x = x.contiguous()
         x = x.view(x.shape[0],-1) # 32,400
 
         x = self.dense1(x) #32,300
+        x = F.relu(x)
         x = self.dense2(x) # 32,200
 
         x = x.contiguous()
@@ -46,22 +49,11 @@ class net_Task3(torch.nn.Module): # accuracy achieves 0.99 within 100 steps
 
 def accuracy(predict,output,batch):
     predict = torch.nn.functional.softmax(predict,dim=-1)
-    predict = torch.max(predict,2)[1].long()
-    predict.contiguous()
-    predict = predict.view(batch,20)
-
-    output.contiguous()
-    output = output.view(batch,20)
+    predict = torch.max(predict,2)[1]
 
     pre_num = predict.data.numpy()
     out_num = output.data.numpy()
     count = 0.0
-    #for i in range(batch):
-    #    p = pre_num[i,:].tolist()
-    #    o = out_num[i,:].tolist()
-    #    if p==o:
-    #        count+=1.0
-    #acc = count/batch
     acc = np.mean(pre_num==out_num)
     return acc
 
@@ -76,7 +68,7 @@ if __name__=='__main__':
               'out_num':10}
     dataset = Dataset(params,input_file,output_file)
     dataloader = data.DataLoader(dataset,batch_size = params['batch_size'],shuffle=True)
-    net = net_Task3(params['in_num'],params['out_num'])
+    net = net_Task8(params['in_num'],params['out_num'])
     optimizer = optim.Adam(net.parameters(),lr=params['lr'])
     loss_fn = nn.CrossEntropyLoss()
 
