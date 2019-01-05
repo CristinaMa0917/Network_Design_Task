@@ -84,19 +84,9 @@ if __name__=='__main__':
             loss = 0
 
             batch = input.shape[0]
-            for i in range(20):
-                predict_i = torch.index_select(predict,1,torch.LongTensor([i]))
-                predict_i.contiguous()
-                predict_i = predict_i.view(batch,10).float()
-
-                output_i = torch.index_select(output,1,torch.LongTensor([i]))
-                output_i.contiguous()
-                output_i = output_i.view(batch)
-
-                # print(predict_i.shape)
-                # print(output_i.shape)
-                loss += loss_fn(predict_i,output_i)
-            # loss = loss_fn(predict,output)
+            predict_l = predict.view(batch*20,10)
+            output_l = output.view(batch*20)
+            loss = loss_fn(predict_l,output_l)
             loss.backward()
 
 
