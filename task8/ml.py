@@ -24,21 +24,23 @@ class net_Task3(torch.nn.Module): # accuracy achieves 0.99 within 100 steps
         super(net_Task3,self).__init__()
 
         self.emb = nn.Embedding(10,8) #0-9
-        self.lstm = nn.LSTM(8,16,batch_first=True,dropout=1)
-        self.gru = nn.GRU(16,20,batch_first=True)
-        self.dense1 = nn.Linear(400,300)
-        self.dense2 = nn.Linear(300,200)
+        self.gru1 = nn.GRU(8,16,batch_first=True,dropout=0,bidirectional=True)
+        self.gru2= nn.GRU(32,20,batch_first=True,dropout=0,bidirectional=True)
+        self.gru3 = nn.GRU(40, 20, batch_first=True, dropout=0)
+        self.dense1 = nn.Linear(400,200)
+        #self.dense2 = nn.Linear(300,200)
 
     def forward(self,x):
         x = self.emb(x) # 32,20,8
-        x,_ = self.lstm(x) # 32,20,16
-        x,_ = self.gru(x) #32,20,10
+        x,_ = self.gru1(x) # 32,20,32
+        x,_ = self.gru2(x) #32,20,40
+        x,_ = self.gru3(x) #32,20,20
 
         x = x.contiguous()
-        x = x.view(x.shape[0],-1) # 32,200
+        x = x.view(x.shape[0],-1) # 32,400
 
-        x = self.dense1(x) #32,100
-        x = self.dense2(x) # 32,20
+        x = self.dense1(x) #32,300
+        # x = self.dense2(x) # 32,200
 
         x = x.contiguous()
         x = x.view(x.shape[0],20,10)
@@ -46,22 +48,11 @@ class net_Task3(torch.nn.Module): # accuracy achieves 0.99 within 100 steps
 
 def accuracy(predict,output,batch):
     predict = torch.nn.functional.softmax(predict,dim=-1)
-    predict = torch.max(predict,2)[1].long()
-    predict.contiguous()
-    predict = predict.view(batch,20)
-
-    output.contiguous()
-    output = output.view(batch,20)
+    predict = torch.max(predict,2)[1]
 
     pre_num = predict.data.numpy()
     out_num = output.data.numpy()
-    count = 0.0
-    for i in range(batch):
-        p = pre_num[i,:].tolist()
-        o = out_num[i,:].tolist()
-        if p==o:
-            count+=1.0
-    acc = count/batch
+    acc = np.mean(pre_num==out_num)
     return acc
 
 if __name__=='__main__':
@@ -88,22 +79,13 @@ if __name__=='__main__':
 
             predict = net(input)
 
+
             loss = 0
 
             batch = input.shape[0]
-            for i in range(20):
-                predict_i = torch.index_select(predict,1,torch.LongTensor([i]))
-                predict_i.contiguous()
-                predict_i = predict_i.view(batch,10).float()
-
-                output_i = torch.index_select(output,1,torch.LongTensor([i]))
-                output_i.contiguous()
-                output_i = output_i.view(batch)
-
-                # print(predict_i.shape)
-                # print(output_i.shape)
-                loss += loss_fn(predict_i,output_i)
-            # loss = loss_fn(predict,output)
+            predict_l = predict.view(batch*20,10)
+            output_l = output.view(batch*20)
+            loss = loss_fn(predict_l,output_l)
             loss.backward()
 
 
