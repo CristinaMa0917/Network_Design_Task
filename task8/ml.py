@@ -73,7 +73,7 @@ if __name__=='__main__':
     for e in range(params['epochs']):
         result = []
         for step,batch_data in enumerate(dataloader):
-            net.zero_grad()
+            optimizer.zero_grad() # net.zero_grad()
             input = batch_data[0]
             output = batch_data[1]
 
